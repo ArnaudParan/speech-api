@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from webapp2 import WSGIApplication
+from cirruslib.handlers.auth.callback import OAuth2FmkCallback
 
 from handlers.main import MainAuthenticatedHandler
 
@@ -14,7 +16,8 @@ FRAMEWORK_HANDLERS = [
     (UserChangeReceiver.URL, UserChangeReceiver),
     (GroupsSync.URL, GroupsSync),
     (MembersSync.URL, MembersSync),
-    (IndirectMembersSync.URL, IndirectMembersSync)
+    (IndirectMembersSync.URL, IndirectMembersSync),
+    (OAuth2FmkCallback.URL, OAuth2FmkCallback)
 ]
 
 APPLICATION_HANDLERS = [
