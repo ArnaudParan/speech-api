@@ -1,0 +1,2 @@
+git+ssh://git@bitbucket.org/cirruseo/google_apis_utils.git@feature/2.0#egg=cirruseo-api-utils
+git+ssh://git@bitbucket.org/cirruseo/cirruseo-custom-framework.git@feature/2.0#egg=cirruseo-custom-framework

@@ -1,0 +1,23 @@
+{
+  "name": "cirruseo-custom-polymer-gae-starter-kit",
+  "description": "Google App Engine & Polymer Application Starter Kit",
+  "private": true,
+  "dependencies": {
+    "iron-elements": "PolymerElements/iron-elements",
+    "neon-elements": "PolymerElements/neon-elements",
+    "app-elements": "PolymerElements/neon-elements",
+    "paper-elements": "PolymerElements/paper-elements",
+    "platinum-elements": "PolymerElements/platinum-elements",
+    "polymer": "Polymer/polymer#^1.4.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "^4.0.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
