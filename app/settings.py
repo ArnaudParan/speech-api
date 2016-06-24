@@ -10,21 +10,23 @@ ADMIN_SDK_MEMBERS_READ_ONLY = 'https://www.googleapis.com/auth/admin.directory.g
 GOOGLE_PLUS_PROFILE = 'https://www.googleapis.com/auth/plus.login'
 GOOGLE_PLUS_EMAILS = 'https://www.googleapis.com/auth/plus.profile.emails.read'
 
+OPEND_ID = 'openid'
+PROFILE = 'profile'
+EMAIL = 'email'
+
 # App auth settings
 # TODO Generate a Web Application Client ID for your project and change the following values
 CLIENT_ID = 'MyClientId'
 CLIENT_SECRET = 'MyClientSecret'
-OAUTH2_CALLBACK = '/oauth2callback'
+OAUTH2_CALLBACK_URL = '/oauth2callback'
 
 # API auth settings
 # TODO Generate a Service Account Client ID for your project and change the following values
 SERVICE_ACCOUNT = 'MyServiceAccount'
 SCOPES = [
-    ADMIN_SDK_USERS_READ_ONLY,
-    ADMIN_SDK_GROUPS_READ_ONLY,
-    ADMIN_SDK_MEMBERS_READ_ONLY,
-    GOOGLE_PLUS_PROFILE,
-    GOOGLE_PLUS_EMAILS
+    OPEND_ID,
+    EMAIL,
+    PROFILE
 ]
 PRIVATE_KEY_FILENAME = 'MyPrivateKeyFilename.pem'
 
@@ -46,3 +48,8 @@ GOOGLE_API_SETTINGS = {
 # TODO Change these customer specific settings
 DOMAIN = ''
 ADMIN_EMAIL = ''
+
+
+def get_admin_email(domain):
+    # FIXME in
+    return ADMIN_EMAIL

@@ -4,13 +4,29 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^(.*/)?.*\.md$
+- ^(.*/)?COPYING$
+- ^(.*/)?LICENSE$
+
 handlers:
 - url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
+  static_files: statics/images/favicon.png
+  upload: statics/images/favicon\.png
+  secure: always
+
+- url: /statics
+  static_dir: statics
+  secure: always
 
 - url: .*
   script: main.app
+  secure: always
 
 libraries:
 - name: webapp2

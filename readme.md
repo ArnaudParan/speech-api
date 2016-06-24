@@ -3,6 +3,32 @@ Setup:
     $ npm install
     $ bower install
     
+    - Update settings file
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 TODO
     Gulp optimizations
         remove console.log statements

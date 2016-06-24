@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+
+        <link rel="import" href="/statics/elements/elements.html">
+        <style is="custom-style">
+            body {
+                margin: 0;
+                font-family: 'Roboto', 'Noto', sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <iron-meta key="user_email" value="{{user.email}}"></iron-meta>
+        <iron-meta key="user_display_name" value="{{user_display_name}}"></iron-meta>
+        <iron-meta key="user_picture" value="{{user.picture}}"></iron-meta>
+
+        <my-app></my-app>
+        <script src="/statics/scripts/app.js"></script>
+    </body>
+</html>

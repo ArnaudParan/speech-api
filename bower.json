@@ -3,6 +3,7 @@
   "description": "Google App Engine & Polymer Application Starter Kit",
   "private": true,
   "dependencies": {
+    "app-layout": "PolymerElements/app-layout",
     "iron-elements": "PolymerElements/iron-elements",
     "neon-elements": "PolymerElements/neon-elements",
     "app-elements": "PolymerElements/neon-elements",
