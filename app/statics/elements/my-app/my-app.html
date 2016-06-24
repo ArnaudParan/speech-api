@@ -38,7 +38,7 @@
                 </app-toolbar>
             </app-header>
             <div id="content">
-                Hello {{ connectedUser.display_name }}
+                Hello {{ email }}
             </div>
         </app-header-layout>
     </template>
@@ -46,10 +46,10 @@
         Polymer({
             is: 'my-app',
             properties: {
-                connectedUser: {
+                email: {
                     type: Object,
                     value: function(){
-                        return new Polymer.IronMetaQuery({key: 'user_display_name'}).value
+                        return new Polymer.IronMetaQuery({key: 'user_email'}).value
                     }
                 }
             }
