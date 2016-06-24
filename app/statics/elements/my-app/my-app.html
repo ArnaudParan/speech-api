@@ -37,7 +37,7 @@
                     <div title>Cirruseo GAE Polymer Starter Kit</div>
                 </app-toolbar>
             </app-header>
-            <div>
+            <div id="content">
                 Hello {{ connectedUser.display_name }}
             </div>
         </app-header-layout>
@@ -46,7 +46,12 @@
         Polymer({
             is: 'my-app',
             properties: {
-                connectedUser: Object
+                connectedUser: {
+                    type: Object,
+                    value: function(){
+                        return new Polymer.IronMetaQuery({key: 'user_display_name'}).value
+                    }
+                }
             }
         });
     </script>
