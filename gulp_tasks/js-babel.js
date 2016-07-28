@@ -1,0 +1,18 @@
+'use strict';
+
+// Transpile all JS from ES2015 (ES6) to ES5
+module.exports = function ($, gulp) {
+    return function () {
+        return gulp.src([
+                'app/statics/{scripts,elements}/**/*.{js,html}',
+                '!app/statics/scripts/analytics.js'
+            ])
+            .pipe($.plumber())
+            .pipe($.sourcemaps.init())
+            .pipe($.if('*.html', $.crisper())) // Extract JS from .html files
+            .pipe($.if('*.js', $.babel()))
+            .pipe($.sourcemaps.write('.'))
+            .pipe(gulp.dest('.tmp'))
+            .pipe(gulp.dest('dist'));
+    };
+};

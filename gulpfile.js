@@ -4,6 +4,7 @@
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var del = require('del');
+var minimist = require('minimist');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
@@ -13,17 +14,9 @@ var fs = require('fs');
 var glob = require('glob-all');
 var historyApiFallback = require('connect-history-api-fallback');
 var crypto = require('crypto');
-var preprocess = require('gulp-preprocess');
-var minimist = require('minimist');
 
 var config = require('./config');
-
-var knownOptions = {
-  string: 'env',
-  default: { env: process.env.NODE_ENV || 'dev' }
-};
-
-var options = minimist(process.argv.slice(2), knownOptions);
+var options = minimist(process.argv.slice(2));
 
 // Get a task path
 function task(filename) {
@@ -72,7 +65,7 @@ var imageOptimizeTask = function(src, dest) {
 
 var optimizeHtmlTask = function(src, dest) {
     var assets = $.useref.assets({
-        searchPath: ['.tmp', 'app', dist()]
+        searchPath: ['.tmp', 'app']
     });
 
     return gulp.src(src)
@@ -85,7 +78,7 @@ var optimizeHtmlTask = function(src, dest) {
         })))
         // Concatenate and minify styles
         // In case you are still using useref build blocks
-        .pipe($.if('*.css', $.minifyCss()))
+        //.pipe($.if('*.css', $.minifyCss()))
         .pipe(assets.restore())
         .pipe($.useref())
         // Minify any HTML
@@ -110,6 +103,11 @@ gulp.task('elements', function() {
     return styleTask('elements', ['statics/**/*.css']);
 });
 
+// Optimize images
+gulp.task('images', function() {
+    return imageOptimizeTask('app/statics/images/**/*', dist('statics/images'));
+});
+
 // Lint JavaScript
 gulp.task('lint', function() {
     return gulp.src([
@@ -132,11 +130,6 @@ gulp.task('lint', function() {
         .pipe($.if(!browserSync.active, $.jshint.reporter('fail')));
 });
 
-// Optimize images
-gulp.task('images', function() {
-    return imageOptimizeTask('app/statics/images/**/*', dist('statics/images'));
-});
-
 // Copy all files at the root level (app)
 gulp.task('copy', function() {
     var app = gulp.src([
@@ -150,62 +143,33 @@ gulp.task('copy', function() {
     }).pipe(gulp.dest(dist()));
 
     var statics = gulp.src([
-        'app/statics/*',
-        '!app/statics/cache-config.json',
+        'app/statics/**',
+        '!app/statics/bower_components',
         '!app/statics/manifest.json'
     ], {
         dot: true
     }).pipe(gulp.dest(dist('statics')));
 
-    var templates = gulp.src([
-        'app/templates/*'
-    ], {
+    var templates = gulp.src('app/templates/**', {
         dot: true
     }).pipe(gulp.dest(dist('templates')));
-    
-    var locale = gulp.src([
-        'app/locale/**'
-    ], {
-        dot: true
-    }).pipe(gulp.dest(dist('locale')));
 
-    var scripts = gulp.src([
-        'app/statics/scripts/**/*.js'
-    ], {
+    var db = gulp.src('app/db/**', {
         dot: true
-    }).pipe(preprocess({
-        context: {
-            env: options.env,
-            clientId: config.build.env[options.env].clientId,
-            googleDrivePickerDeveloperKey: config.build.env[options.env].googleDrivePickerDeveloperKey
-        }
-    }))
-      .pipe(gulp.dest(dist('statics/scripts')));
+    }).pipe(gulp.dest(dist('db')));
 
-    var data = gulp.src([
-        'app/statics/data/**/*.json'
-    ], {
+    // Copy data models
+    var models = gulp.src('app/models/**', {
         dot: true
-    }).pipe(gulp.dest(dist('statics/data')));
+    }).pipe(gulp.dest(dist('models')));
 
     // Copy python files
-    var python = gulp.src([
-        'app/**/*.py'
-    ]).pipe(gulp.dest(dist()));
-    
-    // Copy python files
-    var bigquery = gulp.src([
-        'app/bigquery_data/*.json'
-    ]).pipe(gulp.dest(dist('bigquery_data')));
+    var python = gulp.src('app/**/*.py').pipe(gulp.dest(dist()));
 
-    var keys = gulp.src([
-        'app/keys/**/**'
-    ]).pipe(gulp.dest(dist('keys')));
+    var keys = gulp.src('app/keys/**').pipe(gulp.dest(dist('keys')));
 
     // Copy yaml files
-    var yaml = gulp.src([
-        'app/*.yaml'
-    ]).pipe(gulp.dest(dist()));
+    var yaml = gulp.src('app/*.yaml').pipe(gulp.dest(dist()));
 
     // Copy bower components
     var bower = gulp.src([
@@ -215,24 +179,18 @@ gulp.task('copy', function() {
     ]).pipe(gulp.dest(dist('statics/bower_components')));
 
     // Copy custom components
-    var elements = gulp.src(['app/statics/elements/**/*.html',
-            'app/statics/elements/**/*.css',
-            'app/statics/elements/**/*.js'
-        ])
-        .pipe(gulp.dest(dist('statics/elements')));
+    var elements = gulp.src([
+        'app/statics/elements/**/*.html',
+        'app/statics/elements/**/*.css',
+        'app/statics/elements/**/*.js'
+    ]).pipe(gulp.dest(dist('statics/elements')));
 
-    var externalCss = gulp.src([
-        'app/statics/elements/**/*.css'
-    ]).pipe(gulp.dest('dist/statics/elements'));
-
-    var vulcanized = gulp.src(['app/statics/elements/elements.html'])
+    var vulcanized = gulp.src('app/statics/elements/elements.html')
         .pipe($.rename('elements.vulcanized.html'))
         .pipe(gulp.dest(dist('statics/elements')));
 
-    return merge(app,  statics, python, bigquery, locale, yaml, bower, elements, vulcanized)
-        .pipe($.size({
-            title: 'copy'
-        }));
+    return merge(app, statics, templates, db, models, python, keys, yaml, bower, elements, vulcanized)
+        .pipe($.size({title: 'copy'}));
 });
 
 // Copy web fonts to dist
@@ -246,12 +204,9 @@ gulp.task('fonts', function() {
 
 // Scan your HTML for assets & optimize them
 gulp.task('html', function() {
-    return optimizeHtmlTask(
-        [
-            'app/statics/**/*.html',
-            '!app/statics/{elements,test}/**/*.html'
-        ],
-        dist('statics'));
+    return optimizeHtmlTask([
+        'app/templates/*.html'
+    ], dist('templates'));
 });
 
 // Vulcanize granular configuration
@@ -263,7 +218,7 @@ gulp.task('vulcanize', function() {
             inlineScripts: true
         }))
         .pipe($.rename('elements.html'))
-        .pipe(gulp.dest(dist('statics/elements')))
+        .pipe(gulp.dest('dist/statics/elements'))
         .pipe($.size({title: 'vulcanize'}));
 });
 
@@ -274,56 +229,53 @@ gulp.task('clean', function() {
 
 // Build and serve the output from the dist build with GAE tool
 gulp.task('serve', function() {
-
     gulp.src('app/app.yaml')
         .pipe($.gae('dev_appserver.py', [], {
-                port: 8080,
+                port: 5000,
                 host: '127.0.0.1',
-                admin_port: 8000,
+                admin_port: 5050,
                 admin_host: '127.0.0.1',
-                log_level: 'debug'
-            })
+                log_level: 'info'
+        })
         );
 
-    browserSync({
-        port: 5001,
-        notify: false,
-        open: false,
-        logPrefix: 'V',
-        logLevel: 'debug',
-        snippetOptions: {
-            rule: {
-                match: '<span id="browser-sync-binding"></span>',
-                fn: function(snippet) {
-                    return snippet;
-                }
-            }
-        },
-        // Run as an https by uncommenting 'https: true'
-        // Note: this uses an unsigned certificate which on first access
-        //       will present a certificate warning in the browser.
-        // https: true,
-        server: 'app/statics/',
-        middleware: [historyApiFallback()]
-    });
+    /*
+     browserSync({
+     port: 5001,
+     notify: false,
+     open: false,
+     logPrefix: 'V',
+     logLevel: 'debug',
+     snippetOptions: {
+     rule: {
+     match: '<span id="browser-sync-binding"></span>',
+     fn: function(snippet) {
+     return snippet;
+     }
+     }
+     },
+     // Run as an https by uncommenting 'https: true'
+     // Note: this uses an unsigned certificate which on first access
+     //       will present a certificate warning in the browser.
+     // https: true,
+     server: dist(),
+     middleware: [historyApiFallback()]
+     });
+     */
 
-    gulp.watch(['app/statics/**/*.html'], reload);
-    gulp.watch(['app/statics/styles/**/*.css'], ['styles', reload]);
-    gulp.watch(['app/statics/elements/**/*.css'], ['elements', reload]);
-    gulp.watch(['app/statics/{scripts,elements}/**/{*.js,*.html}'], ['lint', reload]);
-    gulp.watch(['app/statics/images/**/*'], reload);
+    //gulp.watch(['app/**/*.html'], reload);
+    //gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
+    //gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
+    //gulp.watch(['app/{scripts,elements}/**/{*.js,*.html}'], ['lint', reload]);
+    //gulp.watch(['app/images/**/*'], reload);
+
 });
-
-gulp.task('clean-dist', require(task('clean-dist'))(del));
-
-//compile Babel locale files
-gulp.task('locales', $.shell.task(['pybabel compile -f -d app/locale']));
-
-// Transpile all JS from ES2015 (ES6) to ES5
-gulp.task('js', require(task('js-babel'))($, gulp));
 
 // Lint CSS and JavaScript
 gulp.task('lint', require(task('lint'))($, gulp, merge));
+
+// Transpile all JS from ES2015 (ES6) to ES5
+gulp.task('js', require(task('js-babel'))($, gulp));
 
 // Add colors to Web Application Manifest - manifest.json
 gulp.task('manifest', require(task('manifest'))($, config, gulp));
@@ -332,40 +284,41 @@ gulp.task('manifest', require(task('manifest'))($, config, gulp));
 gulp.task('minify-dist', require(task('minify-dist'))($, gulp, merge));
 
 // Static asset revisioning by appending content hash to filenames
-gulp.task('revision', require(task('revision'))($, gulp));
+gulp.task('revision', require(task('revision'))($, gulp, merge));
 
 // Transform styles with PostCSS
 gulp.task('styles', require(task('styles'))($, config, gulp, merge));
 
-// Puts a revision on resources that may be cached by the browser  and just copies other resources in deploy folder
-gulp.task('revision', require(task('revision'))($, gulp));
-
-// Process environment specific files (e.g/ settings.py)
-gulp.task('env-preprocess', require(task('env-preprocess'))($, gulp, options.env));
-
 // Build production files, the default task
 gulp.task('default', ['clean'], function(cb) {
     runSequence(
-        'locales',
         ['copy', 'styles'],
         'elements',
-        ['lint', 'images', 'fonts', 'html'],
+        [
+            'lint',
+            'images',
+            'fonts',
+            //'html'
+        ],
         'vulcanize',
         cb);
 });
 
 // Pre-deploy tasks
-gulp.task('pre-deploy', function(cb) {
-    runSequence(
-        'default',
-        'env-preprocess',
-        'revision',
-        cb
-    );
-});
+gulp.task('pre-deploy',
+    function(cb) {
+        runSequence('default', 'revision', cb);
+    }
+);
+
+gulp.task('pre-deploy:dev', ['pre-deploy'], require(task('env-preprocess'))($, config, gulp, merge, 'development'));
+gulp.task('pre-deploy:prod', ['pre-deploy'], require(task('env-preprocess'))($, config, gulp, merge, 'production'));
 
 // Deploy to development environment
-gulp.task('deploy', ['pre-deploy'], require(task('deploy'))($, config, gulp, options.env));
+gulp.task('deploy:dev', ['pre-deploy:dev'], require(task('deploy'))($, config, gulp, options, 'development'));
+
+// Deploy to production environment
+gulp.task('deploy:prod', ['pre-deploy:prod'], require(task('deploy'))($, config, gulp, options, 'production'));
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`

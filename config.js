@@ -6,19 +6,24 @@ module.exports = {
         // For info on SDK: https://cloud.google.com/sdk/
         gae: {
             env: {
-                // project ID
-                dev: {
-                    appId: 'gcp-demo-cirruseo-dev',
-                    version: '1'
+                development: {
+                    projectId: 'gcp-demo-cirruseo-dev',
+                    version: '1',
+                    extension: 'DEV'
                 },
-                prod: {
-                    appId: 'gcp-demo-cirruseo',
-                    version: '1'
+                production: {
+                    projectId: 'gcp-demo-cirruseo',
+                    version: '1',
+                    extension: 'PROD'
                 }
             },
             // Set the deployed version to be the default serving version.
             // https://cloud.google.com/sdk/gcloud/reference/preview/app/deploy
-            setDefault: false
+            setDefault: false,
+            deployCron: false,
+            deployQueue: true,
+            deployIndex: false,
+            deployDispatch: false
         }
     },
     build: {
