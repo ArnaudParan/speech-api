@@ -16,8 +16,8 @@ EMAIL = 'email'
 
 # App auth settings
 # TODO Generate a Web Application Client ID for your project and change the following values
-CLIENT_ID = 'MyClientId'
-CLIENT_SECRET = 'MyClientSecret'
+CLIENT_ID = '592754811500-4rola6r7iqt1fm07pd6cpitjgsnevs3g.apps.googleusercontent.com'
+CLIENT_SECRET = '2JQSQFLXw0NNAjfiUhMzrNgB'
 OAUTH2_CALLBACK_URL = '/oauth2callback'
 
 # API auth settings

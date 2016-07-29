@@ -11,6 +11,8 @@ from cirruslib.handlers.base import BaseHandler
 
 class MainAuthenticatedHandler(BaseHandler):
 
+    URL = '/.*'
+
     @check_auth()
     def get(self):
         logging.debug('User: %s <%s>' % (self.user_display_name, self.user_email))

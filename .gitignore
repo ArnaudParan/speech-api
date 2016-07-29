@@ -7,3 +7,7 @@ app/libs
 app/statics/bower_components
 node_modules
 libs
+.*.swp
+.tmp
+deploy
+dist
