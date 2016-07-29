@@ -28,7 +28,7 @@ FRAMEWORK_HANDLERS = [
 ]
 
 APPLICATION_HANDLERS = [
-    ('/', MainAuthenticatedHandler)
+    (MainAuthenticatedHandler.URL, MainAuthenticatedHandler)
 ]
 
 app = WSGIApplication(

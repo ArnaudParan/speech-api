@@ -3,13 +3,17 @@
   "description": "Google App Engine & Polymer Application Starter Kit",
   "private": true,
   "dependencies": {
-    "app-layout": "PolymerElements/app-layout",
+    "app-layout": "^0.10.1",
     "iron-elements": "PolymerElements/iron-elements",
     "neon-elements": "PolymerElements/neon-elements",
     "app-elements": "PolymerElements/neon-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "platinum-elements": "PolymerElements/platinum-elements",
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "app-route": "polymerelements/app-route#^0.9.2",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^1.1.2",
+    "iron-pages": "polymerelements/iron-pages#^1.0.8",
+    "iron-selector": "polymerelements/iron-selector#^1.5.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
