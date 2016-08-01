@@ -13,7 +13,8 @@
     "app-route": "polymerelements/app-route#^0.9.2",
     "paper-icon-button": "PolymerElements/paper-icon-button#^1.1.2",
     "iron-pages": "polymerelements/iron-pages#^1.0.8",
-    "iron-selector": "polymerelements/iron-selector#^1.5.2"
+    "iron-selector": "polymerelements/iron-selector#^1.5.2",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.8"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
