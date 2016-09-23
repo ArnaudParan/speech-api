@@ -11,7 +11,7 @@ from cirruslib.handlers.base import BaseHandler
 
 class MainAuthenticatedHandler(BaseHandler):
 
-    URL = '/.*'
+    URL = '/'
 
     @check_auth()
     def get(self):

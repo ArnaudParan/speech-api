@@ -8,18 +8,13 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="./voice-capturer.html">
 
 <dom-module id="my-app">
 
@@ -69,13 +64,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
-    <app-location route="{{route}}"></app-location>
-    <app-route
-        route="{{route}}"
-        pattern="/:page"
-        data="{{routeData}}"
-        tail="{{subroute}}"></app-route>
-
     <app-drawer-layout fullbleed>
 
       <!-- Main content -->
@@ -84,14 +72,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-            <div title>Laredoute</div>
+            <div title>Auchan speech api</div>
           </app-toolbar>
         </app-header>
 
-        <iron-media-query query="(min-width: 600px)" query-matches="{{wideScreen}}"></iron-media-query>
-        <div class="left-panel" wide-layout$="{{wideScreen}}">
-          <scoring-view></scoring-view>
-        </div>
+        <voice-capturer></voice-capturer>
 
       </app-header-layout>
 
@@ -104,32 +89,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
 
       is: 'my-app',
-
-      properties: {
-
-        page: {
-          type: String,
-          reflectToAttribute: true,
-          observer: '_pageChanged'
-        },
-
-      },
-
-      observers: [
-        '_routePageChanged(routeData.page)'
-      ],
-
-      _routePageChanged: function(page) {
-        this.page = page || 'scoring-view';
-      },
-
-      _pageChanged: function(page) {
-        // load page import on demand.
-        url = "scoring-view/scoring-view.html"
-        console.log(this.resolveUrl(url));
-        this.importHref(
-          this.resolveUrl(url), null, null, true);
-      }
 
     });
 
