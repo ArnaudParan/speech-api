@@ -8,6 +8,7 @@ from webapp2 import WSGIApplication, Route
 from cirruslib.handlers.auth.callback import OAuth2FmkCallback
 
 from handlers.main import MainAuthenticatedHandler
+from handlers.store_sound import StoreSound
 
 from cirruslib.handlers.sync.users import UsersSync, UserWatchChecker, UserChangeReceiver
 from cirruslib.handlers.sync.groups import GroupsSync, SubGroupsSync, MembersSync, IndirectMembersSync, \
@@ -24,11 +25,14 @@ FRAMEWORK_HANDLERS = [
     (UpdateUserGroupsSync.URL, UpdateUserGroupsSync),
     (MembersSync.URL, MembersSync),
     (IndirectMembersSync.URL, IndirectMembersSync),
-    (OAuth2FmkCallback.URL, OAuth2FmkCallback)
+    (OAuth2FmkCallback.URL, OAuth2FmkCallback),
 ]
 
+service_url = "/service"
+
 APPLICATION_HANDLERS = [
-    (MainAuthenticatedHandler.URL, MainAuthenticatedHandler)
+    (MainAuthenticatedHandler.URL, MainAuthenticatedHandler),
+    (service_url + StoreSound.URL, StoreSound),
 ]
 
 app = WSGIApplication(

@@ -11,15 +11,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
 
 <dom-module id="voice-capturer">
 
   <template>
 
     <style>
+      div#background-container {
+        height: 110px;
+        width:110px;
+      }
+      div#button-background {
+        margin: 15px;
+      }
+      div#button-background > span {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+      }
+      paper-button#round-button {
+        height: 80px;
+        min-width: 0px;
+        width: 80px;
+        margin: 0px;
+        border-radius: 40px;
+        background-color: var(--paper-grey-200);
+      }
+      paper-button#round-button[active] {
+        background-color: var(--paper-red-100);
+      }
+      paper-button#round-button > iron-icon {
+        --iron-icon-height: 40px;
+        --iron-icon-width: 40px;
+      }
     </style>
 
-    <iron-icon icon="av:mic"></iron-icon>
+    <div id="background-container">
+      <div id="button-background">
+        <span>
+          <paper-button id="round-button" active="{{buttonActive}}" on-click="toggleRegistering" raised toggles>
+            <iron-icon icon="av:mic"></iron-icon>
+          </paper-button>
+        </span>
+      </div>
+    </div>
+
+    <audio controls=""></audio>
 
   </template>
 
@@ -28,6 +67,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
 
       is: 'voice-capturer',
+
+      ready: function() {
+        this.chunks = [];
+        navigator.getUserMedia = (navigator.getUserMedia ||
+                                  navigator.mozGetUserMedia ||
+                                  navigator.msGetUserMedia ||
+                                  navigator.webkitGetUserMedia);
+
+        if (navigator.getUserMedia) {
+          var constraints = { audio: true };
+
+          var onSuccess = function(stream) {
+            this.mediaRecorder = new MediaRecorder(stream);
+
+            this.mediaRecorder.ondataavailable = function(e) {
+              var reader = new FileReader();
+              reader.readAsArrayBuffer(e.data);
+              this.chunks.push(e.data);
+            }.bind(this);
+
+            this.mediaRecorder.onstop = function() {
+              var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
+              this.chunks = [];
+              var reader = new window.FileReader();
+              reader.readAsDataURL(blob);
+              reader.onloadend = function() {
+                this.fire('recorded', {sound: reader.result.replace(/^data:audio\/ogg; codecs=opus;base64,/, "")});
+              }.bind(this)
+              var audioURL = window.URL.createObjectURL(blob);
+              this.$$('audio').src = audioURL;
+            }.bind(this);
+          }.bind(this);
+
+          var onError = function(err) {
+            console.log('The following error occured: ' + err);
+          };
+
+          navigator.getUserMedia(constraints, onSuccess, onError);
+        }
+        else  {
+          console.log('userMedia not accessible');
+        }
+      },
+
+      toggleRegistering: function() {
+        if (this.buttonActive) {
+          this.startRegistering();
+        }
+        else {
+          this.stopRegistering();
+        }
+      },
+
+      startRegistering: function() {
+        this.mediaRecorder.start()
+      },
+
+      stopRegistering: function() {
+        this.mediaRecorder.stop()
+      },
 
     });
 
