@@ -78,8 +78,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-header>
 
         <iron-ajax id="get-sound-channel" url="/service/create_sound_channel" last-response="{{soundChannel}}" on-response="createChannel"></iron-ajax>
-        <iron-ajax id="stream-audio" url="/service/stream_audio" params="{{record}}" last-response="{{token}}" on-response="createChannel"></iron-ajax>
-        <voice-capturer on-recorded="sendRecord"></voice-capturer>
+        <iron-ajax id="stream-audio" url="/service/stream_audio" params="{{record}}"></iron-ajax>
+        <voice-capturer on-click="createStream" on-recorded="sendRecord"></voice-capturer>
 
       </app-header-layout>
 
@@ -93,21 +93,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       is: 'my-app',
 
-      createChannel: function() {
+      createChannel: function(e) {
         var channel = new goog.appengine.Channel(this.soundChannel.token);
         var handler = {
-          onopen: onOpened,
-          onmessage: onMessage,
+          onopen: function() {},
+          onmessage: this.onMessage,
           onerror: function() {},
           onclose: function() {}
         };
         var socket = channel.open(handler);
       },
 
+      onMessage: function(m) {
+        var message = JSON.parse(m.data);
+        console.log(message);
+      },
+
+      createStream: function() {
+        this.$$('iron-ajax#get-sound-channel').generateRequest();
+      },
+
       sendRecord: function(recordDict) {
         this.record = recordDict.detail;
-        this.$$('iron-ajax#get-sound-channel').generateRequest();
-      }
+        this.record.key = this.soundChannel.key;
+        this.$$('iron-ajax#stream-audio').generateRequest();
+      },
 
     });
 

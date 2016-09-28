@@ -3,6 +3,7 @@
 
 import logging
 import os
+import json
 
 from google.appengine.api import channel
 from google.cloud.speech.v1beta1 import cloud_speech_pb2
@@ -37,4 +38,4 @@ class CreateSoundChannel(BaseHandler):
         streaming_config = cloud_speech_pb2.StreamingRecognitionConfig(config=recognition_config)
         cloud_speech_pb2.StreamingRecognizeRequest(streaming_config=streaming_config)
 
-        self.response.write({"token": token, "transactionKey": transaction_key})
+        self.response.write(json.dumps({"token": token, "key": transaction_key}))

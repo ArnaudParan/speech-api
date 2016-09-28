@@ -35,4 +35,4 @@ class StreamAudio(BaseHandler):
 
         channel.send_message(transaction_key, json.dumps({"ok": "ok"}))
 
-        self.response.write({"ok": "ok"})
+        self.response.write(json.dumps({"ok": "ok"}))
