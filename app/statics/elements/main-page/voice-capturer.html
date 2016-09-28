@@ -62,6 +62,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
+  <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+  <script src="../../bower_components/msr/MediaStreamRecorder.js"></script>
   <script>
 
     Polymer({
@@ -79,24 +81,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var constraints = { audio: true };
 
           var onSuccess = function(stream) {
-            this.mediaRecorder = new MediaRecorder(stream);
+            this.mediaRecorder = new MediaStreamRecorder(stream);
+            this.mediaRecorder.mimeType = 'audio/pcm';
 
             this.mediaRecorder.ondataavailable = function(e) {
-              var reader = new FileReader();
-              reader.readAsArrayBuffer(e.data);
-              this.chunks.push(e.data);
-            }.bind(this);
-
-            this.mediaRecorder.onstop = function() {
-              var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
-              this.chunks = [];
               var reader = new window.FileReader();
-              reader.readAsDataURL(blob);
+              reader.readAsDataURL(e);
               reader.onloadend = function() {
-                this.fire('recorded', {sound: reader.result.replace(/^data:audio\/ogg; codecs=opus;base64,/, "")});
+                var base64Sound = reader.result.replace(/^data:audio\/pcm;base64,/, "");
+                this.fire('recorded', {sound: base64Sound});
               }.bind(this)
-              var audioURL = window.URL.createObjectURL(blob);
-              this.$$('audio').src = audioURL;
             }.bind(this);
           }.bind(this);
 

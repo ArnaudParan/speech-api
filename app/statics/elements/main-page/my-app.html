@@ -77,7 +77,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </app-toolbar>
         </app-header>
 
-        <iron-ajax url="/service/store_sound" method="POST" params="{{record}}"></iron-ajax>
+        <iron-ajax id="get-sound-channel" url="/service/create_sound_channel" last-response="{{soundChannel}}" on-response="createChannel"></iron-ajax>
+        <iron-ajax id="stream-audio" url="/service/stream_audio" params="{{record}}" last-response="{{token}}" on-response="createChannel"></iron-ajax>
         <voice-capturer on-recorded="sendRecord"></voice-capturer>
 
       </app-header-layout>
@@ -92,9 +93,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       is: 'my-app',
 
+      createChannel: function() {
+        var channel = new goog.appengine.Channel(this.soundChannel.token);
+        var handler = {
+          onopen: onOpened,
+          onmessage: onMessage,
+          onerror: function() {},
+          onclose: function() {}
+        };
+        var socket = channel.open(handler);
+      },
+
       sendRecord: function(recordDict) {
         this.record = recordDict.detail;
-        this.$$('iron-ajax').generateRequest();
+        this.$$('iron-ajax#get-sound-channel').generateRequest();
       }
 
     });

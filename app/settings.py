@@ -9,6 +9,7 @@ ADMIN_SDK_GROUPS_READ_ONLY = 'https://www.googleapis.com/auth/admin.directory.gr
 ADMIN_SDK_MEMBERS_READ_ONLY = 'https://www.googleapis.com/auth/admin.directory.group.member.readonly'
 GOOGLE_PLUS_PROFILE = 'https://www.googleapis.com/auth/plus.login'
 GOOGLE_PLUS_EMAILS = 'https://www.googleapis.com/auth/plus.profile.emails.read'
+GOOGLE_CLOUD_PLATFORM = 'https://www.googleapis.com/auth/cloud-platform'
 
 OPEND_ID = 'openid'
 PROFILE = 'profile'
