@@ -37,5 +37,4 @@ class CreateSoundChannel(BaseHandler):
         streaming_config = cloud_speech_pb2.StreamingRecognitionConfig(config=recognition_config)
         cloud_speech_pb2.StreamingRecognizeRequest(streaming_config=streaming_config)
 
-        sound = self.request.get("sound")
         self.response.write({"token": token, "transactionKey": transaction_key})

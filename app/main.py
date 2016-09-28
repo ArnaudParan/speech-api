@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from webapp2 import WSGIApplication, Route
 
@@ -10,6 +8,7 @@ from cirruslib.handlers.auth.callback import OAuth2FmkCallback
 from handlers.main import MainAuthenticatedHandler
 from handlers.create_sound_channel import CreateSoundChannel
 from handlers.test  import Test
+from handlers.stream_audio import StreamAudio
 
 from cirruslib.handlers.sync.users import UsersSync, UserWatchChecker, UserChangeReceiver
 from cirruslib.handlers.sync.groups import GroupsSync, SubGroupsSync, MembersSync, IndirectMembersSync, \
@@ -33,6 +32,7 @@ APPLICATION_HANDLERS = [
     (MainAuthenticatedHandler.URL, MainAuthenticatedHandler),
 
     (CreateSoundChannel.URL, CreateSoundChannel),
+    (StreamAudio.URL, StreamAudio),
 
     (Test.URL, Test),
 ]
