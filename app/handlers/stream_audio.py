@@ -5,7 +5,6 @@ import logging
 import os
 import json
 
-from google.appengine.api import channel
 from google.cloud.speech.v1beta1 import cloud_speech_pb2
 
 from cirruslib.auth.decorators import check_auth
@@ -32,7 +31,5 @@ class StreamAudio(BaseHandler):
         if not sound_channel:
             self.response.write({"error": "incorrect key, no channel matches it"})
             return
-
-        channel.send_message(transaction_key, json.dumps({"ok": "ok"}))
 
         self.response.write(json.dumps({"ok": "ok"}))
