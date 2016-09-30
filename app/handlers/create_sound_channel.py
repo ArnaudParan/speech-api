@@ -12,6 +12,8 @@ from cirruslib.handlers.base import BaseHandler
 from cirruslib.settings import PROTOCOL
 
 from utils.globals import SERVICE_URL
+from utils.sound_uploader import SoundUploader, SOUND_UPLOADERS
+from utils.sound_processor import SoundProcessor
 from model.sound_channel import SoundChannel, CurrentID
 
 class CreateSoundChannel(BaseHandler):
@@ -29,6 +31,11 @@ class CreateSoundChannel(BaseHandler):
             current_id._id = 0
             current_id.put()
         transaction_key = str(current_id.increment())
+        SOUND_UPLOADERS[transaction_key] = {
+                "sound_uploader": SoundUploader(transaction_key, SOUND_UPLOADERS)
+                }
+        SOUND_UPLOADERS[transaction_key]["sound_uploader"].start()
+        SoundProcessor(SOUND_UPLOADERS[transaction_key]["sound_uploader"].data_list, 96000, logging.debug)
         sound_channel = SoundChannel(key_name=transaction_key)
         sound_channel.put()
 

@@ -78,7 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-header>
 
         <iron-ajax id="get-sound-channel" url="/service/create_sound_channel" last-response="{{soundChannel}}"></iron-ajax>
-        <iron-ajax id="stream-audio" url="/service/stream_audio" params="{{record}}" last-response="{{currentResult}}" on-response="handleResponse"></iron-ajax>
+        <iron-ajax id="stream-audio" url="/service/stream_audio" method="POST" params="{{record}}" last-response="{{currentResult}}" on-response="handleResponse"></iron-ajax>
         <voice-capturer on-click="createStream" on-recorded="sendRecord"></voice-capturer>
 
       </app-header-layout>

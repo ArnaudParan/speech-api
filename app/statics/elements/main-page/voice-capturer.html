@@ -83,6 +83,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var onSuccess = function(stream) {
             this.mediaRecorder = new MediaStreamRecorder(stream);
             this.mediaRecorder.mimeType = 'audio/pcm';
+            this.mediaRecorder.sampleRate = 96000;
 
             this.mediaRecorder.ondataavailable = function(e) {
               var reader = new window.FileReader();
