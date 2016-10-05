@@ -29,7 +29,7 @@ SCOPES = [
     EMAIL,
     PROFILE
 ]
-PRIVATE_KEY_FILENAME = 'MyPrivateKeyFilename.pem'
+PRIVATE_KEY_FILENAME = 'graphe-product-demo-laredoute-1723c2989064.json'
 
 # !!! You can modify these values but it will break any warranty that comes with this Framework !!!
 USER_AGENT = '%s/%s' % (

@@ -5,7 +5,9 @@ import logging
 import os
 import json
 
+from google.appengine.api import channel
 from google.cloud.speech.v1beta1 import cloud_speech_pb2
+from six.moves import queue
 
 from cirruslib.auth.decorators import check_auth
 from cirruslib.handlers.base import BaseHandler
@@ -13,7 +15,7 @@ from cirruslib.settings import PROTOCOL
 
 from utils.globals import SERVICE_URL
 from utils.sound_uploader import SoundUploader, SOUND_UPLOADERS
-from utils.sound_processor import SoundProcessor
+from utils.transcribe_streaming import SoundProcessor
 from model.sound_channel import SoundChannel, CurrentID
 
 class CreateSoundChannel(BaseHandler):
@@ -22,25 +24,36 @@ class CreateSoundChannel(BaseHandler):
 
     @check_auth()
     def get(self):
-        """Creates an key to recognise the stream, as well as a channel, and connects to speech api"""
+        """Creates a channel to be able to push resutls to the client asynchronously,
+        stores some identifiers for the channel. Creates a thread which does the speech api requests
+        and handles the responses"""
         logging.debug('User: %s <%s>' % (self.user_display_name, self.user_email))
 
+        # gets the current id if it exists, creates one else
         current_id = CurrentID.get_by_key_name("0")
         if not current_id:
             current_id = CurrentID(key_name="0")
             current_id._id = 0
             current_id.put()
         transaction_key = str(current_id.increment())
+
+        # Creates the thread which is going to store the audio data as it comes from the client
         SOUND_UPLOADERS[transaction_key] = {
                 "sound_uploader": SoundUploader(transaction_key, SOUND_UPLOADERS)
                 }
         SOUND_UPLOADERS[transaction_key]["sound_uploader"].start()
-        SoundProcessor(SOUND_UPLOADERS[transaction_key]["sound_uploader"].data_list, 96000, logging.debug)
+
+        # Creates an element in datastore in case we would have to store data for the channel one day
         sound_channel = SoundChannel(key_name=transaction_key)
         sound_channel.put()
 
-        recognition_config = cloud_speech_pb2.RecognitionConfig(encoding="LINEAR16")
-        streaming_config = cloud_speech_pb2.StreamingRecognitionConfig(config=recognition_config)
-        cloud_speech_pb2.StreamingRecognizeRequest(streaming_config=streaming_config)
+        # Creates the channel
+        token = channel.create_channel(transaction_key)
 
-        self.response.write(json.dumps({"key": transaction_key}))
+        # Creates the thread which is going to send requests and parse results from speech api
+        def send_message(message):
+            channel.send_message(token, json.dumps({"message": message}))
+        sound_processor = SoundProcessor(SOUND_UPLOADERS[transaction_key]["sound_uploader"].data_list, 16000, send_message)
+        sound_processor.start()
+
+        self.response.write(json.dumps({"token": token, "key": transaction_key}))

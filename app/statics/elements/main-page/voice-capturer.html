@@ -62,7 +62,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
-  <script type="text/javascript" src="/_ah/channel/jsapi"></script>
   <script src="../../bower_components/msr/MediaStreamRecorder.js"></script>
   <script>
 
@@ -71,7 +70,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'voice-capturer',
 
       ready: function() {
-        this.chunks = [];
+        // For compatibility
         navigator.getUserMedia = (navigator.getUserMedia ||
                                   navigator.mozGetUserMedia ||
                                   navigator.msGetUserMedia ||
@@ -81,10 +80,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var constraints = { audio: true };
 
           var onSuccess = function(stream) {
+            // Creates the mediaStreamRecorder to get the mic input in pcm format
             this.mediaRecorder = new MediaStreamRecorder(stream);
+            this.mediaRecorder.recorderType = StereoAudioRecorder;
+            this.mediaRecorder.audioChannels = 1;
             this.mediaRecorder.mimeType = 'audio/pcm';
-            this.mediaRecorder.sampleRate = 96000;
+            this.mediaRecorder.sampleRate = 16000;
 
+            // Fires a recorded event with the raw audio data when data is available
             this.mediaRecorder.ondataavailable = function(e) {
               var reader = new window.FileReader();
               reader.readAsDataURL(e);
@@ -109,14 +112,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       toggleRegistering: function() {
         if (this.buttonActive) {
           this.startRegistering();
+          this.fire('toggle', {active: true});
         }
         else {
           this.stopRegistering();
+          this.fire('toggle', {active: false});
         }
       },
 
       startRegistering: function() {
-        this.mediaRecorder.start()
+        //starts the mediarecorder which will record 80 miliseconds audio samples
+        this.mediaRecorder.start(80)
       },
 
       stopRegistering: function() {

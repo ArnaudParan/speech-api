@@ -21,9 +21,10 @@ class StreamAudio(BaseHandler):
 
     @check_auth()
     def post(self):
-        """Streams some audio data to speech api"""
+        """Streams some audio data to the sound_uploader (our audio buffer)"""
         logging.debug('User: %s <%s>' % (self.user_display_name, self.user_email))
 
+        # Deals with wrong keys
         transaction_key = self.request.get("key")
         if not transaction_key:
             self.response.write({"error": "no key given please ask a key at /service/create_sound_channel"})
@@ -39,7 +40,8 @@ class StreamAudio(BaseHandler):
             self.response.set_status(403, message="incorrect key, thread does not exist anymore")
             return
 
+        # sends the sound to the buffer
         sound = self.request.get("sound")
-        SOUND_UPLOADERS[transaction_key]["sound_uploader"].push_data(sound.encode("base64"))
+        SOUND_UPLOADERS[transaction_key]["sound_uploader"].push_data(sound.decode("base64"))
 
         self.response.write(json.dumps({"ok": "ok"}))

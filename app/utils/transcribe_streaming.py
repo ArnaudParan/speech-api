@@ -2,17 +2,41 @@
 # -*- coding: utf-8 -*-
 
 import re
-import signal
+import os
+import time
 
+from google.cloud import credentials
 from six.moves import queue
 from google.cloud.speech.v1beta1 import cloud_speech_pb2
 from google.rpc import code_pb2
+from grpc.beta import implementations
 from grpc.framework.interfaces.face import face
 from google.appengine.api.background_thread.background_thread import BackgroundThread
 
-from utils.ssl_channel import make_channel
 
 DEADLINE_SECS = 60 * 3 + 5
+
+def make_channel(host, port):
+    """Creates an SSL channel with auth credentials from the environment."""
+    # In order to make an https call, use an ssl channel with defaults
+    ssl_channel = implementations.ssl_channel_credentials(None, None, None)
+
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "graphe-product-demo-laredoute-1723c2989064.json"
+    # Grab application default credentials from the environment
+    creds = credentials.get_credentials().create_scoped(['https://www.googleapis.com/auth/cloud-platform'])
+    # Add a plugin to inject the creds into the header
+    auth_header = (
+        'Authorization',
+        'Bearer ' + creds.get_access_token().access_token)
+    auth_plugin = implementations.metadata_call_credentials(
+        lambda _, cb: cb([auth_header], None),
+        name='google_creds')
+
+    # compose the two together for both ssl and google auth
+    composite_channel = implementations.composite_channel_credentials(
+        ssl_channel, auth_plugin)
+
+    return implementations.secure_channel(host, port, composite_channel)
 
 def _audio_data_generator(buff):
     """A generator that yields all available data in the given buffer.
@@ -57,7 +81,7 @@ def request_stream(data_stream, rate):
         # See
         # https://g.co/cloud/speech/docs/best-practices#language_support
         # for a list of supported languages.
-        language_code='en-US',  # a BCP-47 language tag
+        language_code='fr-FRA',  # a BCP-47 language tag
     )
     streaming_config = cloud_speech_pb2.StreamingRecognitionConfig(
         config=recognition_config,
@@ -66,7 +90,12 @@ def request_stream(data_stream, rate):
     yield cloud_speech_pb2.StreamingRecognizeRequest(
         streaming_config=streaming_config)
 
+    past_time = time.time()
+
     for data in data_stream:
+        # Limits the stream rate in order to prevent an audio streamed to fast error
+        time.sleep(max(0, 0.1 + past_time - time.time()))
+        past_time = time.time()
         # Subsequent requests can all just have the content
         yield cloud_speech_pb2.StreamingRecognizeRequest(audio_content=data)
 
@@ -101,9 +130,6 @@ def recognize_audio(buff, rate, callback):
         recognize_stream = service.StreamingRecognize(
             requests, DEADLINE_SECS)
 
-        # Exit things cleanly on interrupt
-        signal.signal(signal.SIGINT, lambda *_: recognize_stream.cancel())
-
         # Now, put the transcription responses to use.
         try:
             listen_print_loop(recognize_stream, callback)
@@ -120,5 +146,5 @@ class SoundProcessor(BackgroundThread):
         self.callback = callback
         self.rate = rate
 
-    def start(self):
+    def run(self):
         recognize_audio(self.buff, self.rate, self.callback)

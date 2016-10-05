@@ -6,7 +6,11 @@ import threading
 from google.appengine.api.background_thread.background_thread import BackgroundThread
 
 class DataThread(BackgroundThread):
-    """class to create a thread waiting for data to update"""
+    """class to create a thread waiting for data to update. The threads waits for
+    someone to send data with thread.push_data(data) and then treats it with the
+    handle_data function. The data is stored in self.data and if handle_data returns
+    False, on_stop is called and the thread is stopped. If no data is given during
+    self.timeout, on_stop is called and the thread is stopped."""
     def __init__(self):
         threading.Thread.__init__(self)
         self.event = threading.Event()
