@@ -18,7 +18,8 @@
     "iron-icon": "^1.0.10",
     "iron-icons": "^1.1.3",
     "iron-iconset": "^1.0.4",
-    "paper-styles": "^1.1.4"
+    "paper-styles": "^1.1.4",
+    "msr": "^1.3.4"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
